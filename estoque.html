@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Estoque • Tropeiro do Canto</title>
+
+<style>
+*{box-sizing:border-box;}
+body{margin:0;font-family:system-ui;background:#FFF5E6;color:#2b2b2b;}
+
+header{
+background:#5a0000;
+color:white;
+padding:15px;
+display:flex;
+align-items:center;
+gap:15px;
+}
+
+.logo{
+width:60px;
+height:60px;
+border-radius:50%;
+object-fit:cover;
+border:3px solid white;
+}
+
+header h1{
+margin:0;
+font-size:20px;
+}
+
+.container{
+max-width:950px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:18px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+margin-bottom:20px;
+}
+
+input, select, button{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #ddd;
+margin-bottom:10px;
+}
+
+button{
+width:auto;
+margin-right:4px;
+padding:6px 10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.add{background:#5a0000;color:white;}
+.remove{background:#b45309;color:white;}
+.delete{background:#dc2626;color:white;}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+th,td{
+padding:10px;
+border-top:1px solid #eee;
+text-align:left;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<img src="tropeio.avif" class="logo">
+<h1>Controle de Estoque • Tropeiro do Canto</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>Cadastrar Produto</h2>
+
+<select id="nomeProduto">
+<option value="" disabled selected>Escolha seu produto</option>
+</select>
+
+<input type="text" id="novoProduto" placeholder="Ou digite um novo produto">
+<input type="number" id="quantidadeProduto" placeholder="Quantidade inicial" min="0">
+
+<button onclick="adicionarProduto()">Adicionar</button>
+
+</div>
+
+<div class="card">
+<h2>Estoque Atual</h2>
+
+<table>
+<thead>
+<tr>
+<th>Produto</th>
+<th>Qtd</th>
+<th>Ações</th>
+</tr>
+</thead>
+
+<tbody id="tabela"></tbody>
+
+</table>
+</div>
+
+</div>
+
+<script>
+
+// Produtos fixos no dropdown
+const produtosFixos = [
+"Embalagem Quadrada Grande",
+"Embalagem Grande",
+"Embalagem Média",
+"Embalagem Pequena"
+];
+
+// dropdown
+const selectProduto = document.getElementById("nomeProduto");
+
+produtosFixos.forEach(p=>{
+let option = document.createElement("option");
+option.value = p;
+option.text = p;
+selectProduto.appendChild(option);
+});
+
+// Estoque salvo
+let produtos = JSON.parse(localStorage.getItem("estoque_tropeiro")) || [];
+
+function salvar(){
+localStorage.setItem("estoque_tropeiro", JSON.stringify(produtos));
+render();
+}
+
+// Adicionar produto
+function adicionarProduto(){
+
+let nome =
+document.getElementById("novoProduto").value.trim() ||
+document.getElementById("nomeProduto").value;
+
+const qtd = parseInt(document.getElementById("quantidadeProduto").value);
+
+if(!nome){
+alert("Digite ou selecione um produto!");
+return;
+}
+
+if(isNaN(qtd) || qtd < 0){
+alert("Quantidade inválida!");
+return;
+}
+
+// verifica se já existe
+let existente = produtos.find(
+p => p.nome.toLowerCase() === nome.toLowerCase()
+);
+
+if(existente){
+existente.quantidade += qtd;
+}else{
+produtos.push({
+nome:nome,
+quantidade:qtd
+});
+}
+
+// limpar campos
+document.getElementById("novoProduto").value="";
+document.getElementById("nomeProduto").value="";
+document.getElementById("quantidadeProduto").value="";
+
+salvar();
+}
+
+// alterar quantidade
+function alterar(index, valor){
+produtos[index].quantidade += valor;
+
+if(produtos[index].quantidade < 0){
+produtos[index].quantidade = 0;
+}
+
+salvar();
+}
+
+// deletar
+function deletar(index){
+produtos.splice(index,1);
+salvar();
+}
+
+// renderizar tabela
+function render(){
+
+let html="";
+
+produtos.forEach((p,i)=>{
+
+html+=`
+<tr>
+<td>${p.nome}</td>
+<td>${p.quantidade}</td>
+<td>
+
+<button class="add" onclick="alterar(${i},1)">+1</button>
+<button class="remove" onclick="alterar(${i},-1)">-1</button>
+
+<button class="add" onclick="alterar(${i},10)">+10</button>
+<button class="remove" onclick="alterar(${i},-10)">-10</button>
+
+<button class="delete" onclick="deletar(${i})">Excluir</button>
+
+</td>
+</tr>
+`;
+
+});
+
+document.getElementById("tabela").innerHTML = html;
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
