@@ -1,0 +1,21 @@
+{
+  "name": "Tropeiro do Canto - Estoque",
+  "short_name": "Estoque",
+  "description": "Controle de estoque para o Tropeiro do Canto",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#FFF5E6",
+  "theme_color": "#5a0000",
+  "icons": [
+    {
+      "src": "tropeio.avif",
+      "sizes": "192x192",
+      "type": "image/avif"
+    },
+    {
+      "src": "tropeio.avif",
+      "sizes": "512x512",
+      "type": "image/avif"
+    }
+  ]
+}
